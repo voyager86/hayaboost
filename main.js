@@ -5,12 +5,41 @@ const searchInput = document.getElementById('toolSearch');
 const toolApp = document.getElementById('tool-app');
 const themeIcon = document.getElementById('themeIcon');
 
-// 1. Dark Mode Toggle
-document.getElementById('darkToggle').onclick = () => {
-    const isDark = document.documentElement.classList.toggle('dark');
-    localStorage.theme = isDark ? 'dark' : 'light';
-    themeIcon.innerText = isDark ? '☀️' : '🌙';
-};
+// --- ROBUST DARK MODE LOGIC ---
+function initTheme() {
+    const darkToggle = document.getElementById('darkToggle');
+    const themeIcon = document.getElementById('themeIcon');
+
+    if (!darkToggle) return; // Exit if button isn't found
+
+    // Function to apply theme
+    const applyTheme = (isDark) => {
+        if (isDark) {
+            document.documentElement.classList.add('dark');
+            if (themeIcon) themeIcon.innerText = '☀️';
+            localStorage.theme = 'dark';
+        } else {
+            document.documentElement.classList.remove('dark');
+            if (themeIcon) themeIcon.innerText = '🌙';
+            localStorage.theme = 'light';
+        }
+    };
+
+    // Initial check
+    const isDark = localStorage.theme === 'dark' || 
+                 (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    applyTheme(isDark);
+
+    // Toggle event
+    darkToggle.onclick = () => {
+        const isCurrentlyDark = document.documentElement.classList.contains('dark');
+        applyTheme(!isCurrentlyDark);
+    };
+}
+
+// Run theme init immediately
+initTheme();
+// --- END DARK MODE LOGIC ---
 
 // 2. Sidebar Rendering
 function renderSidebar(filter = '') {
