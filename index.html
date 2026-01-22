@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevToolbox | 100+ Tools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body class="bg-slate-50 flex overflow-hidden">
+
+    <aside class="w-72 bg-white border-r h-screen flex flex-col">
+        <div class="p-6 border-b">
+            <h1 class="text-xl font-bold text-indigo-600 mb-4">DevToolbox</h1>
+            <input type="text" id="toolSearch" placeholder="Search tools..." 
+                   class="w-full px-3 py-2 bg-slate-100 border-none rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <nav id="sidebar-nav" class="flex-1 overflow-y-auto p-4 space-y-1">
+            </nav>
+    </aside>
+
+    <main class="flex-1 h-screen overflow-y-auto p-12">
+        <div id="tool-app" class="max-w-4xl mx-auto">
+            </div>
+    </main>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>

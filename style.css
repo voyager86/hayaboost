@@ -1,0 +1,45 @@
+/* Custom Scrollbar for a modern look */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #e2e8f0; /* slate-200 */
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e1; /* slate-300 */
+}
+
+/* Smooth transitions for tool loading */
+#tool-app {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Monospace font optimization for code outputs */
+.font-mono {
+    font-family: 'Fira Code', 'Cascadia Code', monospace;
+    letter-spacing: -0.02em;
+}
+
+/* Tool Card Hover Effects */
+.tool-link-active {
+    background-color: #f5f3ff; /* indigo-50 */
+    color: #4f46e5; /* indigo-600 */
+    border-right: 3px solid #4f46e5;
+}
+
+/* For the MD5 and Output boxes */
+.output-box {
+    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+}
