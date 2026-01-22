@@ -3,16 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevToolbox | Free Developer Tools</title>
+    <title>DevToolbox | Dev-Focused Toolkit</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
 </head>
 <body>
     <nav class="navbar">
         <h1><a href="#" onclick="loadTool('home')">DevToolbox</a></h1>
-        <div class="menu-toggle" id="mobile-menu">
-            <span></span><span></span><span></span>
-        </div>
+        <div class="menu-toggle" id="mobile-menu"><span></span><span></span><span></span></div>
         <div class="nav-links" id="nav-list">
             <a href="#" onclick="loadTool('md5')">MD5</a>
             <a href="#" onclick="loadTool('base64')">Base64</a>
@@ -24,103 +21,55 @@
     </nav>
 
     <main class="container" id="app-content">
-        <h2>Available Tools</h2>
-        <div class="tool-grid">
-            <div class="grid-item" onclick="loadTool('md5')">
-                <h3>MD5 Encryptor</h3>
-                <p>Generate secure MD5 hashes from text input.</p>
-            </div>
-            <div class="grid-item" onclick="loadTool('base64')">
-                <h3>Base64 Converter</h3>
-                <p>Encode or decode text to/from Base64 format.</p>
-            </div>
-            <div class="grid-item" onclick="loadTool('json')">
-                <h3>JSON Formatter</h3>
-                <p>Beautify and validate messy JSON strings.</p>
-            </div>
-            <div class="grid-item" onclick="loadTool('url')">
-                <h3>URL Encoder</h3>
-                <p>Safely encode or decode URI components.</p>
-            </div>
-            <div class="grid-item" onclick="loadTool('case')">
-                <h3>Case Converter</h3>
-                <p>Switch between camelCase, snake_case, and more.</p>
-            </div>
-            <div class="grid-item" onclick="loadTool('user-agent')">
-                <h3>User-Agent</h3>
-                <p>Detect and display your current browser string.</p>
-            </div>
-        </div>
-    </main>
+        </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-
     <script>
         const appContent = document.getElementById('app-content');
-        const homeHTML = appContent.innerHTML;
+        const homeHTML = `<h2>Available Tools</h2><div class="tool-grid">...</div>`; // Keep your grid HTML here
 
         async function loadTool(toolName) {
-            // Close mobile menu
             document.getElementById('nav-list').classList.remove('active');
-
-            if (toolName === 'home') {
-                appContent.innerHTML = homeHTML;
-                return;
-            }
+            if (toolName === 'home') { appContent.innerHTML = homeHTML; return; }
 
             try {
-                const response = await fetch(`${toolName}.html`);
+                // Using ./ ensures it works on GitHub Pages subfolders
+                const response = await fetch(`./${toolName}.html`);
                 if (!response.ok) throw new Error('Tool file not found');
                 const htmlText = await response.text();
 
-                // 1. Parse the tool's HTML
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(htmlText, 'text/html');
+                const toolBody = doc.querySelector('main') || doc.body;
                 
-                // 2. Extract content inside <main> or <body>
-                const toolContent = doc.querySelector('main') || doc.body;
-                appContent.innerHTML = toolContent.innerHTML;
+                // Clear and Inject
+                appContent.innerHTML = toolBody.innerHTML;
 
-                // 3. RE-EXECUTE SCRIPTS: This is what makes the buttons work!
-                const scripts = toolContent.querySelectorAll('script');
+                // FORCE SCRIPT EXECUTION
+                const scripts = toolBody.querySelectorAll('script');
                 scripts.forEach(oldScript => {
                     const newScript = document.createElement('script');
                     
-                    // Copy all attributes (like 'src')
-                    Array.from(oldScript.attributes).forEach(attr => {
-                        newScript.setAttribute(attr.name, attr.value);
-                    });
-
-                    // Copy the script code itself
-                    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                    // Copy code and explicitly bind functions to window for global access
+                    let scriptCode = oldScript.innerHTML;
                     
-                    // Append to body to trigger evaluation, then immediately remove tag
+                    // Regex trick to ensure functions are global so buttons can see them
+                    scriptCode = scriptCode.replace(/function\s+(\w+)/g, 'window.$1 = function');
+
+                    newScript.textContent = scriptCode;
                     document.body.appendChild(newScript);
-                    newScript.parentNode.removeChild(newScript);
+                    
+                    // Immediate cleanup to keep DOM clean
+                    document.body.removeChild(newScript);
                 });
 
-                // Update Active Link UI
-                document.querySelectorAll('.nav-links a').forEach(a => {
-                    a.classList.toggle('active', a.getAttribute('onclick').includes(`'${toolName}'`));
-                });
-
-            } catch (error) {
-                console.error('Error:', error);
-                appContent.innerHTML = `<h2>Error</h2><p>Could not load ${toolName}.html. Ensure the file exists in your directory.</p>`;
+            } catch (err) {
+                console.error(err);
+                appContent.innerHTML = `<h2>Error</h2><p>Could not load ${toolName}.html</p>`;
             }
         }
 
-        // Hamburger menu logic
-        document.getElementById('mobile-menu').onclick = () => {
-            document.getElementById('nav-list').classList.toggle('active');
-        };
-
-        // PWA registration (optional)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch(() => {});
-            });
-        }
+        window.onload = () => loadTool('home');
     </script>
 </body>
 </html>
