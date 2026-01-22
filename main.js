@@ -3,43 +3,8 @@ import { toolRegistry } from './registry.js';
 const navContainer = document.getElementById('sidebar-nav');
 const searchInput = document.getElementById('toolSearch');
 const toolApp = document.getElementById('tool-app');
-const themeIcon = document.getElementById('themeIcon');
 
-// --- ROBUST DARK MODE LOGIC ---
-function initTheme() {
-    const darkToggle = document.getElementById('darkToggle');
-    const themeIcon = document.getElementById('themeIcon');
-
-    if (!darkToggle) return; // Exit if button isn't found
-
-    // Function to apply theme
-    const applyTheme = (isDark) => {
-        if (isDark) {
-            document.documentElement.classList.add('dark');
-            if (themeIcon) themeIcon.innerText = '☀️';
-            localStorage.theme = 'dark';
-        } else {
-            document.documentElement.classList.remove('dark');
-            if (themeIcon) themeIcon.innerText = '🌙';
-            localStorage.theme = 'light';
-        }
-    };
-
-    // Initial check
-    const isDark = localStorage.theme === 'dark' || 
-                 (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    applyTheme(isDark);
-
-    // Toggle event
-    darkToggle.onclick = () => {
-        const isCurrentlyDark = document.documentElement.classList.contains('dark');
-        applyTheme(!isCurrentlyDark);
-    };
-}
-
-// Run theme init immediately
-initTheme();
-// --- END DARK MODE LOGIC ---
+// 1. Removed Dark Mode Toggle Logic
 
 // 2. Sidebar Rendering
 function renderSidebar(filter = '') {
@@ -51,7 +16,7 @@ function renderSidebar(filter = '') {
     categories.forEach(cat => {
         const section = document.createElement('div');
         section.className = "mb-4";
-        section.innerHTML = `<h3 class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-3">${cat}</h3>`;
+        section.innerHTML = `<h3 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 px-3">${cat}</h3>`;
         
         filtered.filter(t => t.category === cat).forEach(t => {
             const link = document.createElement('a');
@@ -59,8 +24,8 @@ function renderSidebar(filter = '') {
             const isActive = currentPath === t.path;
             link.className = `block px-3 py-2 text-sm rounded-lg transition-all mb-1 ${
                 isActive 
-                ? "bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-none font-medium" 
-                : "text-slate-600 dark:text-slate-400 hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600"
+                ? "bg-indigo-600 text-white font-medium" 
+                : "text-slate-400 hover:bg-slate-800 hover:text-indigo-400"
             }`;
             link.innerText = t.name;
             link.onclick = (e) => { e.preventDefault(); navigate(t.path); };
@@ -79,15 +44,15 @@ async function loadTool() {
         const tool = await import(`./tools${toolInfo.path}.js`);
         toolApp.innerHTML = `
             <div class="mb-8">
-                <span class="text-indigo-600 dark:text-indigo-400 text-sm font-bold uppercase tracking-widest">${toolInfo.category}</span>
-                <h2 class="text-4xl font-bold text-slate-800 dark:text-white mt-1">${toolInfo.name}</h2>
+                <span class="text-indigo-400 text-sm font-bold uppercase tracking-widest">${toolInfo.category}</span>
+                <h2 class="text-4xl font-bold text-white mt-1">${toolInfo.name}</h2>
             </div>
             <div class="tool-content animation-fade-in">${tool.template}</div>
         `;
         tool.init();
-        renderSidebar(searchInput.value); // Refresh active state
+        renderSidebar(searchInput.value); 
     } catch (err) {
-        toolApp.innerHTML = `<div class="text-center mt-20 text-slate-500">Select a tool to begin</div>`;
+        console.error("Tool load error:", err);
     }
 }
 
