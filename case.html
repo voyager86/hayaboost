@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Converter - DevToolbox</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <h1><a href="index.html">DevToolbox</a></h1>
+        <div class="menu-toggle" onclick="document.getElementById('nav-links').classList.toggle('active')">
+            <span></span><span></span><span></span>
+        </div>
+        <div class="nav-links" id="nav-links">
+            <a href="md5.html">MD5</a>
+            <a href="base64.html">Base64</a>
+            <a href="json.html">JSON</a>
+            <a href="case.html" class="active">Case</a>
+            <a href="user-agent.html">User-Agent</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="tool-card">
+            <h2>Case Converter</h2>
+            <textarea id="input" placeholder="Enter text to convert (e.g., hello world)"></textarea>
+            
+            <div class="btn-group" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 1rem;">
+                <button onclick="convert('camel')">camelCase</button>
+                <button onclick="convert('pascal')">PascalCase</button>
+                <button onclick="convert('snake')">snake_case</button>
+                <button onclick="convert('kebab')">kebab-case</button>
+                <button onclick="convert('constant')">CONSTANT_CASE</button>
+            </div>
+
+            <p><strong>Result:</strong></p>
+            <textarea id="output" readonly placeholder="Converted text appears here..."></textarea>
+            <button onclick="navigator.clipboard.writeText(document.getElementById('output').value)">Copy to Clipboard</button>
+        </div>
+    </main>
+
+    <script>
+        const input = document.getElementById('input');
+        const output = document.getElementById('output');
+
+        function convert(type) {
+            const str = input.value.trim();
+            if (!str) return;
+
+            // Split by spaces, underscores, or dashes
+            const words = str.match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g) || [];
+            
+            let result = "";
+
+            switch(type) {
+                case 'camel':
+                    result = words.map((w, i) => i === 0 ? w.toLowerCase() : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join('');
+                    break;
+                case 'pascal':
+                    result = words.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join('');
+                    break;
+                case 'snake':
+                    result = words.map(w => w.toLowerCase()).join('_');
+                    break;
+                case 'kebab':
+                    result = words.map(w => w.toLowerCase()).join('-');
+                    break;
+                case 'constant':
+                    result = words.map(w => w.toUpperCase()).join('_');
+                    break;
+            }
+            output.value = result;
+        }
+
+        // Persistence Logic
+        input.addEventListener('input', () => {
+            localStorage.setItem('case_input', input.value);
+        });
+
+        window.addEventListener('load', () => {
+            const saved = localStorage.getItem('case_input');
+            if (saved) input.value = saved;
+        });
+    </script>
+</body>
+</html>

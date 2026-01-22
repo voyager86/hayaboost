@@ -2,30 +2,122 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevToolbox | Free Developer Tools</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
 </head>
 <body>
     <nav class="navbar">
-        <h1><a href="index.html">DevToolbox</a></h1>
+        <h1><a href="#" onclick="loadTool('home')">DevToolbox</a></h1>
+        <div class="menu-toggle" id="mobile-menu">
+            <span></span><span></span><span></span>
+        </div>
+        <div class="nav-links" id="nav-list">
+            <a href="#" onclick="loadTool('md5')">MD5</a>
+            <a href="#" onclick="loadTool('base64')">Base64</a>
+            <a href="#" onclick="loadTool('json')">JSON</a>
+            <a href="#" onclick="loadTool('url')">URL</a>
+            <a href="#" onclick="loadTool('case')">Case</a>
+            <a href="#" onclick="loadTool('user-agent')">User-Agent</a>
+        </div>
     </nav>
 
-    <main class="container">
+    <main class="container" id="app-content">
         <h2>Available Tools</h2>
         <div class="tool-grid">
-            <a href="md5.html" class="grid-item">
+            <div class="grid-item" onclick="loadTool('md5')">
                 <h3>MD5 Encryptor</h3>
                 <p>Generate secure MD5 hashes from text input.</p>
-            </a>
-            <a href="base64.html" class="grid-item">
+            </div>
+            <div class="grid-item" onclick="loadTool('base64')">
                 <h3>Base64 Converter</h3>
                 <p>Encode or decode text to/from Base64 format.</p>
-            </a>
-            <a href="user-agent.html" class="grid-item">
+            </div>
+            <div class="grid-item" onclick="loadTool('json')">
+                <h3>JSON Formatter</h3>
+                <p>Beautify and validate messy JSON strings.</p>
+            </div>
+            <div class="grid-item" onclick="loadTool('url')">
+                <h3>URL Encoder</h3>
+                <p>Safely encode or decode URI components.</p>
+            </div>
+            <div class="grid-item" onclick="loadTool('case')">
+                <h3>Case Converter</h3>
+                <p>Switch between camelCase, snake_case, and more.</p>
+            </div>
+            <div class="grid-item" onclick="loadTool('user-agent')">
                 <h3>User-Agent</h3>
                 <p>Detect and display your current browser string.</p>
-            </a>
+            </div>
         </div>
     </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+    <script>
+        const appContent = document.getElementById('app-content');
+        const navList = document.getElementById('nav-list');
+        const homeHTML = appContent.innerHTML; // Save home grid state
+
+        async function loadTool(toolName) {
+            // Close mobile menu
+            navList.classList.remove('active');
+
+            if (toolName === 'home') {
+                appContent.innerHTML = homeHTML;
+                return;
+            }
+
+            try {
+                // Fetch the external tool file
+                const response = await fetch(`${toolName}.html`);
+                if (!response.ok) throw new Error('Tool file not found');
+                
+                const htmlText = await response.text();
+                
+                // Parse the text to extract only the <main> or tool-relevant content
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlText, 'text/html');
+                const toolContent = doc.querySelector('main') || doc.body;
+                
+                appContent.innerHTML = toolContent.innerHTML;
+
+                // Re-execute scripts found in the loaded content
+                const scripts = toolContent.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                    }
+                    document.body.appendChild(newScript);
+                    oldScript.remove();
+                });
+
+                // Update Active Link UI
+                document.querySelectorAll('.nav-links a').forEach(a => {
+                    a.classList.toggle('active', a.getAttribute('onclick').includes(`'${toolName}'`));
+                });
+
+            } catch (error) {
+                console.error('Error loading tool:', error);
+                appContent.innerHTML = `<h2>Error</h2><p>Could not load the ${toolName} tool.</p>`;
+            }
+        }
+
+        // Mobile Menu Logic
+        document.getElementById('mobile-menu').addEventListener('click', () => {
+            navList.classList.toggle('active');
+        });
+
+        // PWA Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error', err));
+            });
+        }
+    </script>
 </body>
 </html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>URL Encoder/Decoder - DevToolbox</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <h1><a href="index.html">DevToolbox</a></h1>
+        <div class="nav-links">
+            <a href="md5.html">MD5</a>
+            <a href="base64.html">Base64</a>
+            <a href="url.html" class="active">URL</a>
+            <a href="user-agent.html">User-Agent</a>
+        </div>
+    </nav>
+    <main class="container">
+        <div class="tool-card">
+            <h2>URL Encoder/Decoder</h2>
+            <textarea id="input" placeholder="Enter URL or text..."></textarea>
+            <button onclick="process('encode')">Encode</button>
+            <button onclick="process('decode')">Decode</button>
+            <p><strong>Result:</strong></p>
+            <textarea id="output" readonly></textarea>
+        </div>
+    </main>
+    <script>
+        function process(mode) {
+            const val = document.getElementById('input').value;
+            const out = document.getElementById('output');
+            try {
+                out.value = (mode === 'encode') ? encodeURIComponent(val) : decodeURIComponent(val);
+            } catch(e) { alert("Error processing URL."); }
+        }
+    </script>
+</body>
+</html>
