@@ -8,6 +8,13 @@ export const toolRegistry = [
         description: 'Easily encode or decode URLs to ensure they are safe for web transmission. This tool handles special characters and formatting for developers.'
     },
     { 
+        id: 'lunar', 
+        name: 'Chinese Lunar Calendar', 
+        category: 'Utilities', 
+        path: '/lunarCalendar',
+        description: 'Convert Gregorian dates to the traditional Chinese Lunar calendar. View lunar years, months, and days accurately using modern browser APIs.'
+    },
+    { 
         id: 'ua', 
         name: 'UserAgent Display', 
         category: 'Browser', 
