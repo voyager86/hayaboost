@@ -1,4 +1,3 @@
-// /tools/lunarCalendar.js
 export const template = `
     <div class="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-sm">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -17,12 +16,6 @@ export const template = `
                 <div id="lunarDetails" class="text-slate-400 font-mono text-sm italic">---</div>
             </div>
         </div>
-
-        <div class="mt-8 p-4 bg-indigo-900/10 border border-indigo-900/30 rounded-lg">
-            <p class="text-xs text-indigo-300 leading-relaxed">
-                Note: This tool uses the <strong>Intl Chinese Calendar</strong> system to calculate the Lunar year, month, and day. It provides the traditional date format based on the selected Gregorian date.
-            </p>
-        </div>
     </div>
 `;
 
@@ -32,16 +25,20 @@ export function init() {
     const lunarFull = document.getElementById('lunarFull');
     const lunarDetails = document.getElementById('lunarDetails');
 
-    // Set initial date to today
-    const today = new Date().toISOString().split('T')[0];
-    dateInput.value = today;
-
     const convertDate = (dateString) => {
         if (!dateString) return;
-        const date = new Date(dateString);
+
+        // Fix: Replace dashes with slashes to prevent timezone shift issues in some browsers
+        const date = new Date(dateString.replace(/-/g, '\/'));
         
+        if (isNaN(date.getTime())) {
+            lunarFull.innerText = "Error";
+            lunarDetails.innerText = "Invalid Date Selection";
+            return;
+        }
+
         try {
-            // Use Intl.DateTimeFormat for Chinese Calendar
+            // Using the Chinese calendar system via Intl API
             const formatter = new Intl.DateTimeFormat('zh-u-ca-chinese', {
                 year: 'numeric',
                 month: 'long',
@@ -51,23 +48,24 @@ export function init() {
             const parts = formatter.formatToParts(date);
             const getPart = (type) => parts.find(p => p.type === type).value;
 
-            // Display in Chinese format
             lunarFull.innerText = formatter.format(date);
-            
-            // Extract numeric parts for English detail view
             lunarDetails.innerText = `Year: ${getPart('year')} | Month: ${getPart('month')} | Day: ${getPart('day')}`;
         } catch (e) {
-            lunarFull.innerText = "Error";
-            lunarDetails.innerText = "Invalid Date Selection";
+            console.error(e);
+            lunarFull.innerText = "Not Supported";
+            lunarDetails.innerText = "Your browser does not support this calendar.";
         }
     };
 
     dateInput.onchange = (e) => convertDate(e.target.value);
+    
     todayBtn.onclick = () => {
-        dateInput.value = today;
-        convertDate(today);
+        const now = new Date();
+        const todayStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+        dateInput.value = todayStr;
+        convertDate(todayStr);
     };
 
-    // Run once on load
-    convertDate(today);
+    // Initialize with current date
+    todayBtn.click();
 }
