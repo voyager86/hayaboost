@@ -60,6 +60,7 @@
         const homeHTML = appContent.innerHTML;
 
         async function loadTool(toolName) {
+            // Close mobile menu
             document.getElementById('nav-list').classList.remove('active');
 
             if (toolName === 'home') {
@@ -69,51 +70,57 @@
 
             try {
                 const response = await fetch(`${toolName}.html`);
-                if (!response.ok) throw new Error('Tool not found');
+                if (!response.ok) throw new Error('Tool file not found');
                 const htmlText = await response.text();
 
-                // 1. Create a temporary element to parse the HTML
+                // 1. Parse the tool's HTML
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(htmlText, 'text/html');
                 
-                // 2. Target the main content (ignoring nav/header from tool pages)
+                // 2. Extract content inside <main> or <body>
                 const toolContent = doc.querySelector('main') || doc.body;
                 appContent.innerHTML = toolContent.innerHTML;
 
-                // 3. FIX: Manually execute scripts
+                // 3. RE-EXECUTE SCRIPTS: This is what makes the buttons work!
                 const scripts = toolContent.querySelectorAll('script');
                 scripts.forEach(oldScript => {
                     const newScript = document.createElement('script');
                     
-                    // Copy attributes (like src) if they exist
+                    // Copy all attributes (like 'src')
                     Array.from(oldScript.attributes).forEach(attr => {
                         newScript.setAttribute(attr.name, attr.value);
                     });
 
-                    // Copy the actual script code
+                    // Copy the script code itself
                     newScript.appendChild(document.createTextNode(oldScript.innerHTML));
                     
-                    // Append to body to trigger execution
+                    // Append to body to trigger evaluation, then immediately remove tag
                     document.body.appendChild(newScript);
-                    
-                    // Clean up: remove the script tag immediately after execution
                     newScript.parentNode.removeChild(newScript);
                 });
 
-                // Update UI active state
+                // Update Active Link UI
                 document.querySelectorAll('.nav-links a').forEach(a => {
                     a.classList.toggle('active', a.getAttribute('onclick').includes(`'${toolName}'`));
                 });
 
             } catch (error) {
-                console.error(error);
-                appContent.innerHTML = `<h2>Error</h2><p>Could not load ${toolName}.html</p>`;
+                console.error('Error:', error);
+                appContent.innerHTML = `<h2>Error</h2><p>Could not load ${toolName}.html. Ensure the file exists in your directory.</p>`;
             }
         }
 
+        // Hamburger menu logic
         document.getElementById('mobile-menu').onclick = () => {
             document.getElementById('nav-list').classList.toggle('active');
         };
+
+        // PWA registration (optional)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(() => {});
+            });
+        }
     </script>
 </body>
 </html>
