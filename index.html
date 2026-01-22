@@ -57,12 +57,10 @@
 
     <script>
         const appContent = document.getElementById('app-content');
-        const navList = document.getElementById('nav-list');
-        const homeHTML = appContent.innerHTML; // Save home grid state
+        const homeHTML = appContent.innerHTML;
 
         async function loadTool(toolName) {
-            // Close mobile menu
-            navList.classList.remove('active');
+            document.getElementById('nav-list').classList.remove('active');
 
             if (toolName === 'home') {
                 appContent.innerHTML = homeHTML;
@@ -70,54 +68,52 @@
             }
 
             try {
-                // Fetch the external tool file
                 const response = await fetch(`${toolName}.html`);
-                if (!response.ok) throw new Error('Tool file not found');
-                
+                if (!response.ok) throw new Error('Tool not found');
                 const htmlText = await response.text();
-                
-                // Parse the text to extract only the <main> or tool-relevant content
+
+                // 1. Create a temporary element to parse the HTML
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(htmlText, 'text/html');
-                const toolContent = doc.querySelector('main') || doc.body;
                 
+                // 2. Target the main content (ignoring nav/header from tool pages)
+                const toolContent = doc.querySelector('main') || doc.body;
                 appContent.innerHTML = toolContent.innerHTML;
 
-                // Re-execute scripts found in the loaded content
+                // 3. FIX: Manually execute scripts
                 const scripts = toolContent.querySelectorAll('script');
                 scripts.forEach(oldScript => {
                     const newScript = document.createElement('script');
-                    if (oldScript.src) {
-                        newScript.src = oldScript.src;
-                    } else {
-                        newScript.textContent = oldScript.textContent;
-                    }
+                    
+                    // Copy attributes (like src) if they exist
+                    Array.from(oldScript.attributes).forEach(attr => {
+                        newScript.setAttribute(attr.name, attr.value);
+                    });
+
+                    // Copy the actual script code
+                    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                    
+                    // Append to body to trigger execution
                     document.body.appendChild(newScript);
-                    oldScript.remove();
+                    
+                    // Clean up: remove the script tag immediately after execution
+                    newScript.parentNode.removeChild(newScript);
                 });
 
-                // Update Active Link UI
+                // Update UI active state
                 document.querySelectorAll('.nav-links a').forEach(a => {
                     a.classList.toggle('active', a.getAttribute('onclick').includes(`'${toolName}'`));
                 });
 
             } catch (error) {
-                console.error('Error loading tool:', error);
-                appContent.innerHTML = `<h2>Error</h2><p>Could not load the ${toolName} tool.</p>`;
+                console.error(error);
+                appContent.innerHTML = `<h2>Error</h2><p>Could not load ${toolName}.html</p>`;
             }
         }
 
-        // Mobile Menu Logic
-        document.getElementById('mobile-menu').addEventListener('click', () => {
-            navList.classList.toggle('active');
-        });
-
-        // PWA Registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error', err));
-            });
-        }
+        document.getElementById('mobile-menu').onclick = () => {
+            document.getElementById('nav-list').classList.toggle('active');
+        };
     </script>
 </body>
 </html>
