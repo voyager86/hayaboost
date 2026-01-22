@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User-Agent Display - DevToolbox</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <h1><a href="index.html">DevToolbox</a></h1>
+        <div class="nav-links">
+            <a href="md5.html">MD5</a>
+            <a href="base64.html">Base64</a>
+            <a href="user-agent.html" class="active">User-Agent</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="tool-card">
+            <h2>Your Browser User-Agent</h2>
+            <p>This string helps websites identify your browser and operating system.</p>
+            <div class="output-box" id="ua-box"></div>
+            <br>
+            <button onclick="navigator.clipboard.writeText(navigator.userAgent)">Copy to Clipboard</button>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('ua-box').innerText = navigator.userAgent;
+    </script>
+</body>
+</html>
