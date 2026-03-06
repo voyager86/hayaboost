@@ -7,12 +7,33 @@ export const toolRegistry = [
         path: '/urlEncoder',
         description: 'Easily encode or decode URLs to ensure they are safe for web transmission. This tool handles special characters and formatting for developers.'
     },
+{ 
+    id: 'gzip', 
+    name: 'GZip Compressor', 
+    category: 'Encoding', 
+    path: '/gzip',
+    description: 'Compress strings using GZip (CompressionStream) to reduce data size, or decompress GZip-encoded Base64 strings back to plain text.'
+},
+    { 
+        id: 'maze3d', 
+        name: '3D Maze ScreenSaver', 
+        category: 'Utilities', 
+        path: '/maze3d',
+        description: 'A nostalgic 3D Raycasting engine inspired by the classic Windows 95 Maze screensaver. Features automated navigation through a retro brick maze.'
+    },
+    { 
+        id: 'screensaver', 
+        name: 'ScreenSaver', 
+        category: 'Utilities', 
+        path: '/screenSaver',
+        description: 'A professional fullscreen animation generator. Features random visual effects like starfields and particles to protect your screen.'
+    },
     { 
         id: 'lunar', 
-        name: 'Chinese Lunar Calendar', 
+        name: '农历万年历 Chinese Lunar Calendar', 
         category: 'Utilities', 
-        path: '/lunarCalendar',
-        description: 'Convert Gregorian dates to the traditional Chinese Lunar calendar. View lunar years, months, and days accurately using modern browser APIs.'
+        path: '/lunar',
+        description: '提供准确的公历转农历（阴历）查询，支持查看干支纪年、生肖属相及纳音五行等传统日历信息。'
     },
     { 
         id: 'ua', 
